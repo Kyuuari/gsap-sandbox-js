@@ -2,17 +2,34 @@ import { useRef, useEffect } from "react";
 import reactLogo from "./assets/react.svg";
 import viteLogo from "/vite.svg";
 import "./App.css";
-import { TweenMax, Power3 } from "gsap";
+import gsap from "gsap";
 
 function App() {
   const ref = useRef(null);
 
   useEffect(() => {
-    TweenMax.to(ref.current, 1, {
-      opacity: 1,
-      y: -20,
-      ease: Power3.easeOut,
-    });
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          gsap.to(ref.current, {
+            duration: 1,
+            opacity: 1,
+            y: -20,
+            ease: "power3.out",
+          });
+        }
+      },
+      {
+        rootMargin: "0px",
+        threshold: 0.5,
+      }
+    );
+
+    observer.observe(ref.current);
+
+    return () => {
+      observer.unobserve(ref.current);
+    };
   }, []);
 
   return (
