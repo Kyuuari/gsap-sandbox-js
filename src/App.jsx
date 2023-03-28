@@ -1,42 +1,53 @@
 import { useRef, useEffect } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
-import "./App.css";
 import gsap from "gsap";
+import ScrollTrigger from "gsap/ScrollTrigger";
 
 function App() {
-  const ref = useRef(null);
+  const containerRef = useRef(null);
+  const contentRef = useRef(null);
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          gsap.to(ref.current, {
-            duration: 1,
-            opacity: 1,
-            y: -20,
-            ease: "power3.out",
-          });
-        }
+    // Ensure that ScrollTrigger is enabled.
+    gsap.registerPlugin(ScrollTrigger);
+
+    // Define a GSAP timeline for the animation.
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: containerRef.current,
+        start: "top center",
+        end: "bottom center",
+        scrub: true,
+        markers: true,
       },
-      {
-        rootMargin: "0px",
-        threshold: 0.5,
-      }
-    );
+    });
 
-    observer.observe(ref.current);
+    // Add animation steps to the timeline.
+    tl.to(contentRef.current, {
+      opacity: 1,
+      y: 0,
+      duration: 0.5,
+    });
 
+    // Make sure to clean up the ScrollTrigger on unmount.
     return () => {
-      observer.unobserve(ref.current);
+      ScrollTrigger.getAll().forEach((trigger) => trigger.revert());
     };
   }, []);
 
   return (
-    <div ref={ref} style={{ opacity: 0 }}>
-      <h1>Hello, World!</h1>
-      <p>This is a GSAP animation in React!</p>
-    </div>
+    <>
+      <div className="h-screen bg-red-500"></div>
+      <div
+        ref={containerRef}
+        className="h-screen bg-blue-500 grid place-items-center"
+      >
+        <div ref={contentRef} className="content opacity-0">
+          <h1 className="text-xl">Hello, World!</h1>
+          <p>This is some content that will be animated in.</p>
+        </div>
+      </div>
+      <div className="h-screen bg-green-400"></div>
+    </>
   );
 }
 
